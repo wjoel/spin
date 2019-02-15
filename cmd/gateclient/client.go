@@ -338,6 +338,7 @@ func (m *GatewayClient) authenticateOAuth2() error {
 			if err != nil {
 				return err
 			}
+			newToken.AccessToken = newToken.Extra("id_token").(string)
 		}
 
 		util.UI.Info("Caching oauth2 token.")
@@ -346,8 +347,8 @@ func (m *GatewayClient) authenticateOAuth2() error {
 		info, _ := os.Stat(m.configLocation)
 		ioutil.WriteFile(m.configLocation, buf, info.Mode())
 
+		m.Context = context.WithValue(context.Background(), gate.ContextAccessToken, newToken.AccessToken)
 		m.login(newToken.AccessToken)
-		m.Context = context.Background()
 	}
 	return nil
 }
